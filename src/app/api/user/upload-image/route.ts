@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
-import { authOptions } from "../../auth/[...nextauth]/route";
+import { authOptions } from "@/lib/auth";
 import { writeFile } from "fs/promises";
 import { mkdir } from "fs/promises";
 import path from "path";
@@ -16,7 +16,7 @@ export async function POST(request: Request) {
     if (!session || !session.user) {
       return NextResponse.json(
         { error: "Authentication required" },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
@@ -28,7 +28,7 @@ export async function POST(request: Request) {
     if (!file || !type) {
       return NextResponse.json(
         { error: "File and type are required" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -51,7 +51,7 @@ export async function POST(request: Request) {
     if (!imageUrl) {
       return NextResponse.json(
         { error: "Failed to upload image to Cloudinary" },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
@@ -77,7 +77,7 @@ export async function POST(request: Request) {
     console.error("Error uploading image:", error);
     return NextResponse.json(
       { error: "Internal server error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

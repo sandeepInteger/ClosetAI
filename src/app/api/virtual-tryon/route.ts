@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
-import { authOptions } from "../auth/[...nextauth]/route";
+import { authOptions } from "@/lib/auth";
 import { fal } from "@fal-ai/client";
 
 export async function POST(request: Request) {
@@ -10,7 +10,7 @@ export async function POST(request: Request) {
     if (!session || !session.user) {
       return NextResponse.json(
         { error: "Authentication required" },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
@@ -26,7 +26,7 @@ export async function POST(request: Request) {
     ) {
       return NextResponse.json(
         { error: "Invalid request data" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -49,8 +49,8 @@ export async function POST(request: Request) {
                 message: "Starting virtual try-on process...",
                 progress: 0,
                 totalItems: clothingItems.length,
-              }) + "\n"
-            )
+              }) + "\n",
+            ),
           );
 
           // Process each clothing item sequentially
@@ -67,8 +67,8 @@ export async function POST(request: Request) {
                   progress: i,
                   totalItems: clothingItems.length,
                   currentItem: item.category,
-                }) + "\n"
-              )
+                }) + "\n",
+              ),
             );
 
             // Call the Fal.ai API for each clothing item
@@ -92,12 +92,12 @@ export async function POST(request: Request) {
                           progress: i,
                           totalItems: clothingItems.length,
                           currentItem: item.category,
-                        }) + "\n"
-                      )
+                        }) + "\n",
+                      ),
                     );
                   }
                 },
-              }
+              },
             );
 
             // Update the current image with the result for the next iteration
@@ -114,13 +114,13 @@ export async function POST(request: Request) {
                     totalItems: clothingItems.length,
                     currentItem: item.category,
                     intermediateImage: currentImage,
-                  }) + "\n"
-                )
+                  }) + "\n",
+                ),
               );
             } else {
               console.error(
                 "No result image returned from Fal.ai for item:",
-                item
+                item,
               );
               controller.enqueue(
                 encoder.encode(
@@ -130,8 +130,8 @@ export async function POST(request: Request) {
                     progress: i,
                     totalItems: clothingItems.length,
                     currentItem: item.category,
-                  }) + "\n"
-                )
+                  }) + "\n",
+                ),
               );
             }
           }
@@ -145,8 +145,8 @@ export async function POST(request: Request) {
                 progress: clothingItems.length,
                 totalItems: clothingItems.length,
                 resultImage: currentImage,
-              }) + "\n"
-            )
+              }) + "\n",
+            ),
           );
 
           // Close the stream
@@ -158,8 +158,8 @@ export async function POST(request: Request) {
               JSON.stringify({
                 type: "error",
                 message: "Failed to generate try-on image",
-              }) + "\n"
-            )
+              }) + "\n",
+            ),
           );
           controller.close();
         }
@@ -178,7 +178,7 @@ export async function POST(request: Request) {
     console.error("Error in virtual try-on API:", error);
     return NextResponse.json(
       { error: "Internal server error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

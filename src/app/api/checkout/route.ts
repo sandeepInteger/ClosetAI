@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
-import { authOptions } from "../auth/[...nextauth]/route";
+import { authOptions } from "@/lib/auth";
 import Stripe from "stripe";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
@@ -48,7 +48,7 @@ export async function POST(request: Request) {
     console.error("Error creating checkout session:", error);
     return NextResponse.json(
       { error: "Failed to create checkout session" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

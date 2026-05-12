@@ -4,7 +4,7 @@ import path from "path";
 import { writeFile, mkdir } from "fs/promises";
 import { uploadToCloudinary } from "../../functions/cloudinaryImage";
 import { getServerSession } from "next-auth";
-import { authOptions } from "../auth/[...nextauth]/route";
+import { authOptions } from "@/lib/auth";
 
 // Define types for the clothing item
 interface ClothingItem {
@@ -50,7 +50,7 @@ export async function POST(request: Request) {
       });
       return NextResponse.json(
         { error: "Missing required fields" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -69,7 +69,7 @@ export async function POST(request: Request) {
       if (!imageUrl) {
         return NextResponse.json(
           { error: "Failed to upload image to Cloudinary" },
-          { status: 500 }
+          { status: 500 },
         );
       }
 
@@ -103,18 +103,18 @@ export async function POST(request: Request) {
     } catch (uploadError) {
       console.error(
         "Error during file processing or database save:",
-        uploadError
+        uploadError,
       );
       return NextResponse.json(
         { error: "Failed to process file or save to database" },
-        { status: 500 }
+        { status: 500 },
       );
     }
   } catch (error) {
     console.error("Unhandled error in POST /api/clothing:", error);
     return NextResponse.json(
       { error: "Internal server error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -144,7 +144,7 @@ export async function GET() {
         tags: [],
         imageUrl: item.image_url,
         favorite: item.favourite,
-      })
+      }),
     );
 
     return NextResponse.json({ data: response });
@@ -152,7 +152,7 @@ export async function GET() {
     console.error("Error in GET /api/clothing:", error);
     return NextResponse.json(
       { error: "Internal server error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -165,7 +165,7 @@ export async function DELETE() {
     console.error("Error in DELETE /api/clothing:", error);
     return NextResponse.json(
       { error: "Internal server error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

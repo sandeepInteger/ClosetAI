@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
 import { getServerSession } from "next-auth";
-import { authOptions } from "../../auth/[...nextauth]/route";
+import { authOptions } from "@/lib/auth";
 
 const prisma = new PrismaClient();
 
@@ -23,7 +23,7 @@ export async function GET() {
     console.error("Failed to fetch credits:", err);
     return NextResponse.json(
       { error: "Failed to fetch credits" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -46,7 +46,7 @@ export async function POST(request: Request) {
     if (!user || user.credits < amount) {
       return NextResponse.json(
         { error: "Insufficient credits" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -60,7 +60,7 @@ export async function POST(request: Request) {
     console.error("Failed to deduct credits:", err);
     return NextResponse.json(
       { error: "Failed to deduct credits" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

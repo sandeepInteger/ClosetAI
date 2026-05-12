@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
-import { authOptions } from "../../auth/[...nextauth]/route";
+import { authOptions } from "@/lib/auth";
 import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
@@ -12,7 +12,7 @@ export async function GET() {
     if (!session || !session.user) {
       return NextResponse.json(
         { error: "Authentication required" },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
@@ -64,7 +64,7 @@ export async function GET() {
     console.error("Error fetching user profile:", error);
     return NextResponse.json(
       { error: "Internal server error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

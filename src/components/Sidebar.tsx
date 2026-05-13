@@ -179,9 +179,11 @@ export function Sidebar() {
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                onClick={() => signOut()}
+                onClick={() => void signOut({ callbackUrl: "/" })}
                 className="p-2 rounded-lg hover:bg-blue-50 text-gray-400 
                          hover:text-blue-600 transition-colors duration-200"
+                type="button"
+                aria-label="Sign out"
               >
                 <FaSignOutAlt className="w-5 h-5" />
               </motion.button>

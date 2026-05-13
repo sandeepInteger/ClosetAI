@@ -2,26 +2,26 @@ import { NextResponse } from "next/server";
 import { getToken } from "next-auth/jwt";
 import { NextRequest } from "next/server";
 
+/** Must match how NextAuth names session cookies (see next-auth core/init + cookie.js). */
+function isHttpsRequest(req: NextRequest): boolean {
+  const forwarded = req.headers.get("x-forwarded-proto");
+  if (forwarded) return forwarded.split(",")[0]?.trim() === "https";
+  return req.nextUrl.protocol === "https:";
+}
+
 export async function middleware(req: NextRequest) {
-  // Add a small delay to give time for the session to be established
   const session = await getToken({
     req,
     secret: process.env.NEXTAUTH_SECRET,
-    secureCookie: process.env.NODE_ENV === "production",
+    secureCookie: isHttpsRequest(req),
   });
 
-  console.log(
-    "Middleware running for path:",
-    req.nextUrl.pathname,
-    "Session:",
-    !!session
-  );
-
-  // Protect dashboard routes
   if (req.nextUrl.pathname.startsWith("/dashboard") && !session) {
-    // Add a query parameter to help debug
     return NextResponse.redirect(
-      new URL(`/auth/signin?from=${req.nextUrl.pathname}`, req.url)
+      new URL(
+        `/auth/signin?from=${encodeURIComponent(req.nextUrl.pathname)}`,
+        req.url,
+      ),
     );
   }
 
@@ -29,5 +29,5 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/dashboard/:path*"],
+  matcher: ["/dashboard", "/dashboard/:path*"],
 };

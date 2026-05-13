@@ -42,6 +42,9 @@ export const authOptions: NextAuthOptions = {
     GoogleProvider({
       clientId: googleClientId ?? "",
       clientSecret: googleClientSecret ?? "",
+      checks: ["pkce", "state"],
+      /** Default 3.5s can fail on slow networks; token exchange then fails intermittently. */
+      httpOptions: { timeout: 20_000 },
     }),
   ],
 

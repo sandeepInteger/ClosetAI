@@ -23,19 +23,33 @@ function errorMessage(code: string | null) {
   return map[code] ?? map.Default;
 }
 
+function safeCallbackPath(from: string | null): string {
+  if (!from || !from.startsWith("/") || from.startsWith("//")) {
+    return "/dashboard";
+  }
+  try {
+    const u = new URL(from, "http://local.invalid");
+    if (u.origin !== "http://local.invalid") return "/dashboard";
+  } catch {
+    return "/dashboard";
+  }
+  return from;
+}
+
 function SignInInner() {
   const searchParams = useSearchParams();
   const errorCode = searchParams.get("error");
+  const from = searchParams.get("from");
+  /** Always a same-origin path — never a full URL — so OAuth matches NEXTAUTH_URL reliably. */
+  const callbackUrl = safeCallbackPath(from);
+
   const [csrfToken, setCsrfToken] = useState<string | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
-  const [callbackUrl, setCallbackUrl] = useState("/dashboard");
 
   const [origin, setOrigin] = useState("");
 
   useEffect(() => {
-    const o = window.location.origin;
-    setOrigin(o);
-    setCallbackUrl(`${o}/dashboard`);
+    setOrigin(window.location.origin);
   }, []);
 
   useEffect(() => {
@@ -109,9 +123,11 @@ function SignInInner() {
             <span className="rounded bg-sw-surface-muted px-1.5 py-0.5 font-mono text-sw-ink-muted">
               {origin}
             </span>
-            . Set <span className="font-mono">NEXTAUTH_URL</span> in <span className="font-mono">.env</span>{" "}
+            .             Set <span className="font-mono">NEXTAUTH_URL</span> in <span className="font-mono">.env</span>{" "}
             to this same value (including <span className="font-mono">http</span> vs{" "}
-            <span className="font-mono">https</span> and port).
+            <span className="font-mono">https</span> and port). Do not use both{" "}
+            <span className="font-mono">localhost</span> and <span className="font-mono">127.0.0.1</span>{" "}
+            interchangeably. On Vercel, set <span className="font-mono">AUTH_TRUST_HOST=true</span> if redirects misbehave.
           </p>
         ) : null}
       </div>

@@ -2,8 +2,8 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { writeFile } from "fs/promises";
-import { mkdir } from "fs/promises";
 import path from "path";
+import { tmpdir } from "os";
 import { uploadToCloudinary } from "../../../functions/cloudinaryImage";
 import { prisma } from "@/lib/prisma";
 
@@ -34,13 +34,9 @@ export async function POST(request: Request) {
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
 
-    // Create a unique filename
-    const filename = `${Date.now()}-${file.name}`;
-
-    // Create temp directory for file
-    const tempDir = path.join(process.cwd(), "temp");
-    await mkdir(tempDir, { recursive: true });
-    const tempFilePath = path.join(tempDir, filename);
+    const filename = `${Date.now()}-${path.basename(file.name)}`;
+    // Serverless (Vercel): only os.tmpdir() is writable, not process.cwd()/temp
+    const tempFilePath = path.join(tmpdir(), filename);
     await writeFile(tempFilePath, buffer);
 
     // Upload to Cloudinary

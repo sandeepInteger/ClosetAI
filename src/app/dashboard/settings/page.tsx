@@ -65,13 +65,12 @@ export default function SettingsPage() {
   };
 
   return (
-    <div className="min-h-screen h-screen flex flex-col bg-[#f8fafc]">
+    <div className="flex min-h-0 flex-1 flex-col bg-[#f8fafc]">
       {/* Sticky Header */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="sticky top-0  bg-white/80 backdrop-blur-sm border-b 
-                 border-gray-100 px-4 sm:px-8 py-4"
+        className="sticky top-0 z-10 border-b border-gray-100 bg-white/80 px-4 pb-4 pt-[max(3.5rem,env(safe-area-inset-top,0px))] backdrop-blur-sm sm:px-8 md:py-4"
       >
         <div className="max-w-[1200px] mx-auto">
           <h1
@@ -201,7 +200,9 @@ export default function SettingsPage() {
                           <Image
                             src={fullBodyImage}
                             alt="Full body"
-                            className="w-full h-full object-contain bg-gray-100"
+                            fill
+                            sizes="(max-width: 640px) 100vw, 256px"
+                            className="object-contain bg-gray-100"
                           />
 
                           <div

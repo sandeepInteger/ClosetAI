@@ -1,127 +1,86 @@
 "use client";
-import React, { useState, useEffect } from "react";
 
-import { FaLeaf } from "react-icons/fa";
-//import { signInWithGoogle, signOut } from "@/lib/supabase";
-//import { useAuth } from "@/context/AuthContext";
-// const router = useRouter(); // Remove this line if not needed
+import React, { useEffect, useState } from "react";
+import Link from "next/link";
+import { RiInfinityFill } from "react-icons/ri";
+import { SiAppstore, SiGoogleplay } from "react-icons/si";
+
+import { ProgressBanner } from "@/components/ProgressBanner";
+
+/** Stylized loop mark — compact black glyph beside the wordmark. */
+function BrandMark({ className }: { className?: string }) {
+  return (
+    <RiInfinityFill
+      className={className}
+      aria-hidden
+      size={22}
+      style={{ color: "#0a0a0a" }}
+    />
+  );
+}
 
 export const Navbar = () => {
   const [scrolled, setScrolled] = useState(false);
-  //const { user, loading } = useAuth();
+  const [storeNoticeOpen, setStoreNoticeOpen] = useState(false);
 
-  // Handle scroll effect
   useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 20);
-    };
-
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
+    const onScroll = () => setScrolled(window.scrollY > 12);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  {
-    /**const handleSignIn = async () => {
-    const { error } = await signInWithGoogle();
-    if (!error) {
-      router.push("/dashboard");
-    } else {
-      console.error("Error signing in:", error);
-    }
-  }; */
-  }
-
-  {
-    /**const handleSignOut = async () => {
-    const { error } = await signOut();
-    if (error) {
-      console.error("Error signing out:", error);
-    }
-  }; */
-  }
-
   return (
-    <nav
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 
-                ${
-                  scrolled
-                    ? "bg-white/70 backdrop-blur-lg shadow-sm"
-                    : "bg-transparent"
-                }`}
-    >
-      <div className="flex justify-between items-center p-4 max-w-7xl mx-auto">
-        <div className="flex items-center space-x-2">
-          <FaLeaf className="text-green-500 text-2xl" />
-          <span className="text-xl font-bold">smartWardrobe</span>
-        </div>
+    <>
+    <nav className="pointer-events-none fixed inset-x-0 top-0 z-50 flex justify-center px-4 pt-4 md:px-6 md:pt-5">
+      <div
+        className={`pointer-events-auto flex w-full max-w-[min(100%,880px)] items-center rounded-full border border-[#e8eaed] bg-white py-[10px] pl-[18px] pr-[10px] shadow-[0_10px_40px_-16px_rgba(15,23,42,0.14),0_2px_10px_-4px_rgba(15,23,42,0.08)] transition-[box-shadow,border-color] duration-300 md:py-[11px] md:pl-5 md:pr-3 ${
+          scrolled
+            ? "shadow-[0_16px_48px_-14px_rgba(15,23,42,0.18),0_4px_14px_-4px_rgba(15,23,42,0.1)]"
+            : ""
+        }`}
+      >
+        <Link
+          href="/"
+          className="flex min-w-0 shrink-0 items-center gap-[10px] text-[#0a0a0a] no-underline transition-opacity hover:opacity-80"
+        >
+          <BrandMark className="shrink-0" />
+          <span className="truncate text-[15px] font-bold tracking-[-0.02em] md:text-[16px]">
+             ClosetAI
+          </span>
+        </Link>
 
-        <div className="hidden md:flex space-x-8">
-          <a
-            href="#features"
-            className="hover:text-green-500 transition-colors"
-          >
-            Get Started
-          </a>
-          <a href="#create" className="hover:text-green-500 transition-colors">
-            Create Strategy
-          </a>
-          <a href="#pricing" className="hover:text-green-500 transition-colors">
-            Pricing
-          </a>
-          <a href="#contact" className="hover:text-green-500 transition-colors">
-            Contact
-          </a>
-          <a
-            href="#solution"
-            className="hover:text-green-500 transition-colors"
-          >
-            Solution
-          </a>
-        </div>
+        <div className="min-w-[1rem] flex-1" aria-hidden />
 
-        {/**<div className="flex items-center space-x-4">
-          {!loading && (
-            <>
-              {user ? (
-                <div className="flex items-center space-x-4">
-                  <motion.button
-                    whileHover={{ scale: 1.05 }}
-                    onClick={handleSignOut}
-                    className="px-6 py-2 rounded-full bg-black text-white 
-                             hover:bg-gray-800 transition-colors"
-                  >
-                    Sign Out
-                  </motion.button>
-                </div>
-              ) : (
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  onClick={handleSignIn}
-                  className="px-6 py-2 rounded-full bg-black text-white 
-                           hover:bg-gray-800 transition-colors"
-                >
-                  Sign In
-                </motion.button>
-              )}
-            </>
-          )}
-          <button className="md:hidden">
-            <svg
-              className="w-6 h-6"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M4 6h16M4 12h16M4 18h16"
-              />
-            </svg>
+        <div className="flex shrink-0 items-center gap-2 md:gap-3">
+          <Link
+            href="/auth/signin"
+            className="shrink-0 rounded-full bg-black px-3.5 py-2 text-[13px] font-semibold leading-none text-white no-underline transition-colors hover:bg-[#1f2937] md:px-5 md:py-2.5 md:text-[14px]"
+          >
+            Sign in
+          </Link>
+          <button
+            type="button"
+            onClick={() => setStoreNoticeOpen(true)}
+            className="flex h-10 w-10 items-center justify-center rounded-[11px] bg-[#f3f4f6] text-[#0a0a0a] transition-colors hover:bg-[#eceef1] md:h-[42px] md:w-[42px] md:rounded-xl"
+            aria-label="Download on the App Store"
+            aria-haspopup="dialog"
+          >
+            <SiAppstore className="h-[19px] w-[19px]" aria-hidden />
           </button>
-        </div> */}
+          <button
+            type="button"
+            onClick={() => setStoreNoticeOpen(true)}
+            className="flex h-10 w-10 items-center justify-center rounded-[11px] bg-[#f3f4f6] text-[#0a0a0a] transition-colors hover:bg-[#eceef1] md:h-[42px] md:w-[42px] md:rounded-xl"
+            aria-label="Get it on Google Play"
+            aria-haspopup="dialog"
+          >
+            <SiGoogleplay className="h-[19px] w-[19px]" aria-hidden />
+          </button>
+        </div>
       </div>
     </nav>
+    <ProgressBanner open={storeNoticeOpen} onDismiss={() => setStoreNoticeOpen(false)} />
+    </>
   );
 };

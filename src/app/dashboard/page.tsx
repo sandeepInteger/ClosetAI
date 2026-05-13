@@ -108,10 +108,14 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className="min-h-screen h-screen flex flex-col bg-gradient-to-br from-gray-50 to-gray-100">
+    <div className="flex min-h-0 flex-1 flex-col bg-gradient-to-br from-gray-50 to-gray-100">
       {isLoading ? (
-        <div className="flex items-center justify-center h-full">
-          <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
+        <div className="flex flex-1 flex-col items-center justify-center gap-3 px-6">
+          <div
+            className="h-9 w-9 animate-spin rounded-full border-2 border-sw-border border-t-sw-accent"
+            aria-hidden
+          />
+          <p className="text-sm text-sw-ink-muted">Opening your wardrobe…</p>
         </div>
       ) : (
         <>
@@ -119,12 +123,12 @@ export default function DashboardPage() {
           <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="sticky top-0  bg-white/80 backdrop-blur-sm border-b border-gray-100 px-4 md:px-8 py-4"
+            className="sticky top-0 z-10 border-b border-gray-100 bg-white/80 pb-4 pt-[max(3.5rem,env(safe-area-inset-top,0px))] backdrop-blur-sm md:py-4 md:px-8"
           >
-            <div className="max-w-[1800px] mx-auto">
+            <div className="mx-auto max-w-[1800px] px-4 pr-14 md:px-0 md:pr-0">
               {/* Mobile Layout */}
               <div className="md:hidden space-y-3">
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between gap-2">
                   <motion.h1
                     className="text-xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 
                               bg-clip-text text-transparent"
@@ -133,8 +137,7 @@ export default function DashboardPage() {
                   </motion.h1>
                   <motion.div
                     whileHover={{ scale: 1.02 }}
-                    className="flex items-center gap-2 bg-gradient-to-r from-red-50 to-pink-50 
-                              px-3 mr-10 py-1.5 rounded-lg border border-red-100 shadow-sm"
+                    className="flex shrink-0 items-center gap-2 rounded-lg border border-red-100 bg-gradient-to-r from-red-50 to-pink-50 px-3 py-1.5 shadow-sm"
                   >
                     <span className="text-sm font-bold text-red-600">
                       {stats.favoriteItems}
@@ -220,11 +223,11 @@ export default function DashboardPage() {
           </motion.div>
 
           {/* Main Content - Scrollable */}
-          <div className="flex-1 overflow-y-auto px-4 md:px-8 py-6">
+          <div className="flex-1 overflow-y-auto px-3 py-6 sm:px-4 md:px-8">
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="max-w-[1800px] mx-auto space-y-8"
+              className="mx-auto max-w-[1800px] space-y-8"
             >
               {/* Category Breakdown */}
               <motion.div

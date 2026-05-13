@@ -256,18 +256,16 @@ export default function PlannerPage() {
   );
 
   return (
-    <div className="min-h-screen h-screen flex flex-col bg-gradient-to-br from-gray-50 to-gray-100">
+    <div className="flex min-h-0 flex-1 flex-col bg-gradient-to-br from-gray-50 to-gray-100">
       {/* Sticky Header */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="sticky top-0  bg-white/80 backdrop-blur-sm border-b 
-                 border-gray-100 px-4 md:px-8 py-4"
+        className="sticky top-0 z-10 border-b border-gray-100 bg-white/80 pb-4 pt-[max(3.5rem,env(safe-area-inset-top,0px))] backdrop-blur-sm md:py-4 md:px-8"
       >
-        <div className="max-w-[1800px] mx-auto">
+        <div className="mx-auto flex max-w-[1800px] items-center justify-between gap-3 px-4 pr-14 md:px-0 md:pr-0">
           <motion.h1
-            className="text-2xl font-bold bg-gradient-to-r from-gray-800 to-gray-600 
-                     bg-clip-text text-transparent"
+            className="bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-2xl font-bold text-transparent"
           >
             Outfit Planner
           </motion.h1>
@@ -275,7 +273,7 @@ export default function PlannerPage() {
       </motion.div>
 
       {/* Main Content - Scrollable */}
-      <div className="flex-1 overflow-y-auto p-4 md:p-8">
+      <div className="mx-auto w-full max-w-[1800px] flex-1 overflow-y-auto px-3 py-4 sm:px-4 md:p-8">
         {/* User Guide */}
         <UserGuide />
 
@@ -306,7 +304,7 @@ export default function PlannerPage() {
             </div>
 
             {/* Simplified Calendar Grid */}
-            <div className="grid grid-cols-7 gap-2">
+            <div className="grid grid-cols-7 gap-1.5 sm:gap-2">
               {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
                 <div
                   key={day}
@@ -329,7 +327,7 @@ export default function PlannerPage() {
                     whileTap={{ scale: 0.95 }}
                     onClick={() => setSelectedDate(day)}
                     className={`
-                      relative aspect-square rounded-lg p-2 text-sm
+                      relative flex aspect-square min-h-[44px] w-full max-w-full items-center justify-center rounded-lg p-1 text-sm
                       ${
                         isSameDay(day, new Date()) ? "ring-2 ring-blue-500" : ""
                       }

@@ -138,23 +138,25 @@ const AddItemModal = ({
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 max-h-screen overflow-y-auto">
+    <div className="fixed inset-0 z-[80] flex max-h-dvh items-center justify-center overflow-y-auto bg-sw-ink/50 p-4 backdrop-blur-sm">
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 0.95 }}
-        className="bg-white rounded-xl w-full max-w-lg"
+        className="w-full max-w-lg rounded-2xl border border-sw-border bg-sw-surface shadow-xl"
       >
         <form
           onSubmit={handleSubmit}
           className="p-4 md:p-6 space-y-4 md:space-y-6"
         >
-          <div className="flex justify-between items-center">
-            <h2 className="text-lg md:text-xl font-bold">Add New Item</h2>
+          <div className="flex items-center justify-between">
+            <h2 className="font-serif text-lg font-semibold text-sw-ink md:text-xl">
+              Add piece
+            </h2>
             <button
               type="button"
               onClick={onClose}
-              className="text-gray-500 hover:text-gray-700"
+              className="rounded-lg p-2 text-sw-ink-muted transition hover:bg-sw-surface-muted hover:text-sw-ink"
             >
               <FaTimes />
             </button>
@@ -162,13 +164,13 @@ const AddItemModal = ({
 
           {/* Image Upload */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="mb-2 block text-sm font-medium text-sw-ink-muted">
               Image
             </label>
-            <div className="flex justify-center p-4 border-2 border-dashed rounded-lg relative">
+            <div className="relative flex justify-center rounded-xl border-2 border-dashed border-sw-border-strong bg-sw-surface-muted/50 p-4">
               {imageLoading && (
-                <div className="absolute inset-0 bg-white/50 flex items-center justify-center">
-                  <div className="animate-spin rounded-full h-6 w-6 border-2 border-blue-500 border-t-transparent"></div>
+                <div className="absolute inset-0 flex items-center justify-center bg-sw-surface/60">
+                  <div className="h-6 w-6 animate-spin rounded-full border-2 border-sw-border border-t-sw-accent" />
                 </div>
               )}
               {preview ? (
@@ -193,9 +195,9 @@ const AddItemModal = ({
                 </div>
               ) : (
                 <div className="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-4">
-                  <label className="flex items-center justify-center space-x-2 px-4 py-2 bg-gray-100 rounded-lg cursor-pointer hover:bg-gray-200">
-                    <FaCamera className="text-gray-600" />
-                    <span>Take Photo</span>
+                  <label className="flex cursor-pointer items-center justify-center space-x-2 rounded-xl border border-sw-border bg-sw-surface px-4 py-2.5 text-sm font-medium text-sw-ink transition hover:border-sw-accent-ring hover:bg-sw-accent-soft/40">
+                    <FaCamera className="text-sw-ink-muted" />
+                    <span>Take photo</span>
                     <input
                       type="file"
                       accept="image/*"
@@ -204,9 +206,9 @@ const AddItemModal = ({
                       onChange={handleImageUpload}
                     />
                   </label>
-                  <label className="flex items-center justify-center space-x-2 px-4 py-2 bg-gray-100 rounded-lg cursor-pointer hover:bg-gray-200">
-                    <FaUpload className="text-gray-600" />
-                    <span>Upload Image</span>
+                  <label className="flex cursor-pointer items-center justify-center space-x-2 rounded-xl border border-sw-border bg-sw-surface px-4 py-2.5 text-sm font-medium text-sw-ink transition hover:border-sw-accent-ring hover:bg-sw-accent-soft/40">
+                    <FaUpload className="text-sw-ink-muted" />
+                    <span>Upload</span>
                     <input
                       type="file"
                       accept="image/*"
@@ -221,27 +223,27 @@ const AddItemModal = ({
 
           {/* Name Input */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="mb-2 block text-sm font-medium text-sw-ink-muted">
               Name
             </label>
             <input
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:outline-none"
+              className="w-full rounded-xl border border-sw-border bg-sw-surface px-4 py-2.5 text-sw-ink outline-none ring-sw-accent-ring transition focus:border-sw-accent focus:ring-2 focus:ring-sw-accent-ring/50"
               required
             />
           </div>
 
           {/* Category Selection */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="mb-2 block text-sm font-medium text-sw-ink-muted">
               Category
             </label>
             <select
               value={category}
               onChange={(e) => setCategory(e.target.value as ClothingCategory)}
-              className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:outline-none"
+              className="w-full rounded-xl border border-sw-border bg-sw-surface px-4 py-2.5 text-sw-ink outline-none focus:border-sw-accent focus:ring-2 focus:ring-sw-accent-ring/50"
             >
               {categories.map((cat) => (
                 <option key={cat.label} value={cat.label}>
@@ -253,7 +255,7 @@ const AddItemModal = ({
 
           {/* Tags Selection */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="mb-2 block text-sm font-medium text-sw-ink-muted">
               Tags
             </label>
             <div className="flex flex-wrap gap-2">
@@ -268,10 +270,10 @@ const AddItemModal = ({
                         : [...prev, tag]
                     );
                   }}
-                  className={`px-3 py-1 rounded-full text-sm ${
+                  className={`rounded-full px-3 py-1.5 text-sm font-medium transition ${
                     selectedTags.includes(tag)
-                      ? "bg-green-500 text-white"
-                      : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                      ? "bg-sw-accent text-white shadow-sm"
+                      : "border border-sw-border bg-sw-surface-muted text-sw-ink-muted hover:border-sw-accent-ring hover:text-sw-ink"
                   }`}
                 >
                   {tag}
@@ -373,7 +375,7 @@ export default function ClosetPage() {
 
   if (status === "loading") {
     return (
-      <div className="flex items-center justify-center min-h-screen">
+      <div className="flex flex-1 flex-col items-center justify-center gap-3 px-6 py-12">
         <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
       </div>
     );
@@ -405,33 +407,13 @@ export default function ClosetPage() {
   });
 
   return (
-    <div className="w-full min-h-screen bg-white">
+    <div className="flex min-h-0 w-full flex-1 flex-col bg-white">
       {/* Sticky Header Section */}
-      <div className="sticky top-0 left-0 right-0 z-10 bg-white">
+      <div className="sticky top-0 left-0 right-0 z-10 bg-white pt-[max(3.5rem,env(safe-area-inset-top,0px))] md:pt-0">
         {/* Header */}
         <header className="border-b border-gray-200 px-4 py-3 flex justify-between items-center">
           <h1 className="text-xl font-bold text-gray-800">Smart Closet</h1>
-          <button
-            onClick={() => {
-              /* handle menu toggle */
-            }}
-            className="text-gray-600 lg:hidden"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-6 w-6"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M4 6h16M4 12h16M4 18h16"
-              />
-            </svg>
-          </button>
+          
         </header>
 
         {/* Search Bar */}

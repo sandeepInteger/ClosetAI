@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -13,38 +7,34 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model clothing_items{
-  id String @id @default(uuid())
-  user_id String
-  name String
-  category String
-  image_url String
-  favourite Boolean @default(false)
-  wears Int @default(0)
-  last_worn DateTime?
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
-  
-  // Add relation to User model
-  user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
+model clothing_items {
+  id         String    @id @default(uuid())
+  user_id    String
+  name       String
+  category   String
+  image_url  String
+  favourite  Boolean   @default(false)
+  wears      Int       @default(0)
+  last_worn  DateTime?
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
+  user       User      @relation(fields: [user_id], references: [id], onDelete: Cascade)
 }
 
-// NextAuth Models
 model Account {
-  id                 String  @id @default(uuid())
-  userId             String
-  type               String
-  provider           String
-  providerAccountId  String
-  refresh_token      String?  @db.Text
-  access_token       String?  @db.Text
-  expires_at         Int?
-  token_type         String?
-  scope              String?
-  id_token           String?  @db.Text
-  session_state      String?
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id                String  @id @default(uuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
 }
@@ -58,17 +48,16 @@ model Session {
 }
 
 model User {
-  id            String    @id @default(uuid())
-  name          String?
-  email         String?   @unique
-  emailVerified DateTime?
-  image         String?
-  credits       Int       @default(10)
-  created_at    DateTime  @default(now())
-  updated_at    DateTime  @updatedAt
-  
-  accounts      Account[]
-  sessions      Session[]
+  id             String           @id @default(uuid())
+  name           String?
+  email          String?          @unique
+  emailVerified  DateTime?
+  image          String?
+  created_at     DateTime         @default(now())
+  updated_at     DateTime         @updatedAt
+  credits        Int              @default(10)
+  accounts       Account[]
+  sessions       Session[]
   clothing_items clothing_items[]
 }
 
@@ -79,4 +68,3 @@ model VerificationToken {
 
   @@unique([identifier, token])
 }
-

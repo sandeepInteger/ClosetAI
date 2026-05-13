@@ -1,14 +1,30 @@
-import { DefaultSession, Session, NextAuthOptions } from "next-auth";
+import { DefaultSession, NextAuthOptions } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import { PrismaAdapter } from "@auth/prisma-adapter";
-import { PrismaClient } from "@prisma/client";
-import { JWT } from "next-auth/jwt";
+import { prisma } from "@/lib/prisma";
 
-const prisma = new PrismaClient();
+const googleClientId = process.env.GOOGLE_CLIENT_ID;
+const googleClientSecret = process.env.GOOGLE_CLIENT_SECRET;
 
-interface SessionCallbackParams {
-  session: Session;
-  token: JWT;
+if (process.env.NODE_ENV === "development") {
+  if (!googleClientId || !googleClientSecret) {
+    console.warn(
+      "[auth] GOOGLE_CLIENT_ID or GOOGLE_CLIENT_SECRET is missing; Google sign-in will fail.",
+    );
+  }
+  if (!process.env.NEXTAUTH_SECRET) {
+    console.warn("[auth] NEXTAUTH_SECRET is missing; sessions will not work.");
+  }
+  if (!process.env.DATABASE_URL?.trim()) {
+    console.warn(
+      "[auth] DATABASE_URL is missing; Google sign-in cannot save users to the database.",
+    );
+  }
+  if (!process.env.NEXTAUTH_URL?.trim()) {
+    console.warn(
+      "[auth] NEXTAUTH_URL is unset. Set it to the exact origin you use in the browser (e.g. http://localhost:3000). Mixing localhost and a LAN IP causes OAuthCallback errors.",
+    );
+  }
 }
 
 declare module "next-auth" {
@@ -24,8 +40,8 @@ export const authOptions: NextAuthOptions = {
 
   providers: [
     GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID as string,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
+      clientId: googleClientId ?? "",
+      clientSecret: googleClientSecret ?? "",
     }),
   ],
 
@@ -39,20 +55,34 @@ export const authOptions: NextAuthOptions = {
   debug: process.env.NODE_ENV === "development",
 
   callbacks: {
-    async session({ session, token }: SessionCallbackParams) {
+    async jwt({ token, user }) {
+      if (user?.id) {
+        token.sub = user.id;
+      }
+      return token;
+    },
+
+    async session({ session, token }) {
       if (session.user && token.sub) {
         session.user.id = token.sub;
       }
-
       return session;
     },
 
+    // Match NextAuth defaults: support relative callbackUrl and same-origin URLs.
+    // Avoid rewriting arbitrary same-origin URLs to /dashboard (breaks valid redirects).
     async redirect({ url, baseUrl }) {
-      if (url.startsWith(baseUrl)) {
-        return `${baseUrl}/dashboard`;
+      if (url.startsWith("/")) {
+        return `${baseUrl}${url}`;
       }
-
-      return url;
+      try {
+        if (new URL(url).origin === new URL(baseUrl).origin) {
+          return url;
+        }
+      } catch {
+        /* ignore invalid url */
+      }
+      return `${baseUrl}/dashboard`;
     },
   },
 

@@ -8,8 +8,7 @@ export default function Home() {
     <main>
       <Navbar />
       <LandingPage />
-      <Feature />
-      <Footer />
+      
     </main>
   );
 }

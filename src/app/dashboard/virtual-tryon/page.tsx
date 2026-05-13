@@ -301,13 +301,12 @@ export default function VirtualTryOnPage() {
   ];
 
   return (
-    <div className="min-h-screen h-screen flex flex-col bg-[#f8fafc]">
+    <div className="flex min-h-0 flex-1 flex-col bg-[#f8fafc]">
       {/* Sticky Header */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="sticky top-0  bg-white/80 backdrop-blur-sm border-b 
-                 border-gray-100 px-4 md:px-8 py-4"
+        className="sticky top-0 z-10 border-b border-gray-100 bg-white/80 px-4 pb-4 pt-[max(3.5rem,env(safe-area-inset-top,0px))] backdrop-blur-sm md:px-8 md:py-4"
       >
         <div className="max-w-[1800px] mx-auto">
           {/* Mobile Layout */}

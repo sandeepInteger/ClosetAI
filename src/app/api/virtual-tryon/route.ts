@@ -1,11 +1,62 @@
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { fal } from "@fal-ai/client";
+import { ApiError, fal } from "@fal-ai/client";
+
+/** URLs already on Fal CDN can be passed through to the model. */
+function isFalHostedImageUrl(url: string): boolean {
+  return /(?:^https?:\/\/)(?:v3\.)?fal\.media\//i.test(url);
+}
+
+/**
+ * Fal must fetch `human_image_url` and `garment_image_url`. Cloudinary and some hosts
+ * return 403 to Fal's fetchers; uploading to Fal storage avoids that.
+ */
+async function ensureFalAccessibleImageUrl(imageUrl: string): Promise<string> {
+  if (!imageUrl || typeof imageUrl !== "string") {
+    throw new Error("Missing image URL");
+  }
+  if (imageUrl.startsWith("data:")) {
+    const res = await fetch(imageUrl);
+    const blob = await res.blob();
+    return fal.storage.upload(blob);
+  }
+  if (isFalHostedImageUrl(imageUrl)) {
+    return imageUrl;
+  }
+
+  const imageResponse = await fetch(imageUrl);
+  if (!imageResponse.ok) {
+    throw new Error(
+      `Could not download image (${imageResponse.status}). The URL may be private or expired.`,
+    );
+  }
+  const contentType =
+    imageResponse.headers.get("content-type") ?? "image/jpeg";
+  const arrayBuffer = await imageResponse.arrayBuffer();
+  const blob = new Blob([arrayBuffer], { type: contentType });
+  return fal.storage.upload(blob);
+}
+
+function clientMessageFromUnknownError(error: unknown): string {
+  if (error instanceof ApiError) {
+    console.error("Fal ApiError:", error.status, error.message, error.body);
+    if (error.status === 403) {
+      return (
+        "The AI provider blocked this request (403). Check that FAL_KEY is valid, your Fal account " +
+        "has access to “Kling Kolors Virtual Try-On”, and billing/limits are OK on fal.ai."
+      );
+    }
+    return error.message || "Failed to generate try-on image";
+  }
+  if (error instanceof Error) {
+    return error.message;
+  }
+  return "Failed to generate try-on image";
+}
 
 export async function POST(request: Request) {
   try {
-    // Get the authenticated user
     const session = await getServerSession(authOptions);
     if (!session || !session.user) {
       return NextResponse.json(
@@ -14,7 +65,13 @@ export async function POST(request: Request) {
       );
     }
 
-    // Parse the request body
+    if (!process.env.FAL_KEY?.trim()) {
+      return NextResponse.json(
+        { error: "Server is missing FAL_KEY for virtual try-on." },
+        { status: 500 },
+      );
+    }
+
     const body = await request.json();
     const { humanImage, clothingItems } = body;
 
@@ -30,18 +87,27 @@ export async function POST(request: Request) {
       );
     }
 
-    // Create a response object with streaming capability
     const encoder = new TextEncoder();
     const stream = new ReadableStream({
       async start(controller) {
         try {
-          // Configure Fal.ai client
           fal.config({ credentials: process.env.FAL_KEY });
 
-          // Start with the human image
-          let currentImage = humanImage;
+          controller.enqueue(
+            encoder.encode(
+              JSON.stringify({
+                type: "progress",
+                message: "Preparing images for the AI provider…",
+                progress: 0,
+                totalItems: clothingItems.length,
+              }) + "\n",
+            ),
+          );
 
-          // Send initial progress
+          let currentImage = await ensureFalAccessibleImageUrl(
+            humanImage as string,
+          );
+
           controller.enqueue(
             encoder.encode(
               JSON.stringify({
@@ -53,12 +119,10 @@ export async function POST(request: Request) {
             ),
           );
 
-          // Process each clothing item sequentially
           for (let i = 0; i < clothingItems.length; i++) {
             const item = clothingItems[i];
             if (!item.imageUrl) continue;
 
-            // Send progress update
             controller.enqueue(
               encoder.encode(
                 JSON.stringify({
@@ -71,19 +135,23 @@ export async function POST(request: Request) {
               ),
             );
 
-            // Call the Fal.ai API for each clothing item
+            const garmentImageUrl = await ensureFalAccessibleImageUrl(
+              item.imageUrl as string,
+            );
+
             const response = await fal.subscribe(
               "fal-ai/kling/v1-5/kolors-virtual-try-on",
               {
                 input: {
                   human_image_url: currentImage,
-                  garment_image_url: item.imageUrl,
+                  garment_image_url: garmentImageUrl,
                 },
                 logs: true,
                 onQueueUpdate: (update) => {
                   if (update.status === "IN_PROGRESS") {
-                    // Send model progress updates
-                    const logMessages = update.logs.map((log) => log.message);
+                    const logMessages = (update.logs ?? []).map(
+                      (log) => log.message,
+                    );
                     controller.enqueue(
                       encoder.encode(
                         JSON.stringify({
@@ -100,11 +168,9 @@ export async function POST(request: Request) {
               },
             );
 
-            // Update the current image with the result for the next iteration
             if (response?.data?.image?.url) {
               currentImage = response.data.image.url;
 
-              // Send item completion update
               controller.enqueue(
                 encoder.encode(
                   JSON.stringify({
@@ -136,7 +202,6 @@ export async function POST(request: Request) {
             }
           }
 
-          // Send final completion message
           controller.enqueue(
             encoder.encode(
               JSON.stringify({
@@ -149,7 +214,6 @@ export async function POST(request: Request) {
             ),
           );
 
-          // Close the stream
           controller.close();
         } catch (error) {
           console.error("Error in stream:", error);
@@ -157,7 +221,7 @@ export async function POST(request: Request) {
             encoder.encode(
               JSON.stringify({
                 type: "error",
-                message: "Failed to generate try-on image",
+                message: clientMessageFromUnknownError(error),
               }) + "\n",
             ),
           );
@@ -166,7 +230,6 @@ export async function POST(request: Request) {
       },
     });
 
-    // Return the stream as a response
     return new Response(stream, {
       headers: {
         "Content-Type": "text/event-stream",

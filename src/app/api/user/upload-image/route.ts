@@ -5,9 +5,7 @@ import { writeFile } from "fs/promises";
 import { mkdir } from "fs/promises";
 import path from "path";
 import { uploadToCloudinary } from "../../../functions/cloudinaryImage";
-import { PrismaClient } from "@prisma/client";
-
-const prisma = new PrismaClient();
+import { prisma } from "@/lib/prisma";
 
 export async function POST(request: Request) {
   try {

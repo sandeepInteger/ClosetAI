@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "@/lib/prisma";
 import path from "path";
 import { writeFile, mkdir } from "fs/promises";
 import { uploadToCloudinary } from "../../functions/cloudinaryImage";
@@ -15,8 +15,6 @@ interface ClothingItem {
   imageUrl: string;
   favorite: boolean;
 }
-
-const prisma = new PrismaClient();
 
 // Post Request
 export async function POST(request: Request) {
@@ -136,8 +134,10 @@ export async function GET() {
       },
     });
 
+    type DbClothingRow = (typeof clothingItems)[number];
+
     const response = clothingItems.map(
-      (item): ClothingItem => ({
+      (item: DbClothingRow): ClothingItem => ({
         id: item.id,
         name: item.name,
         category: item.category,

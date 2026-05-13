@@ -58,7 +58,10 @@ function SignInInner() {
       .then((t) => {
         if (!cancelled) {
           if (t) setCsrfToken(t);
-          else setLoadError("Could not load sign-in session. Refresh the page.");
+          else
+            setLoadError(
+              "Could not load sign-in session. On Vercel: set NEXTAUTH_URL to this exact origin (https + host, no trailing slash), set NEXTAUTH_SECRET, and AUTH_TRUST_HOST=true, then redeploy. Visit /api/auth/csrf — you should see JSON including csrfToken.",
+            );
         }
       })
       .catch(() => {
